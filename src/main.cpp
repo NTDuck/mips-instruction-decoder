@@ -12,6 +12,8 @@ by modifying the macros below */
 // No whitespace allowed.
 #define EXT_MIPS_INSTRUCTION_DECODER_NUMBER            965425896
 
+#define EXT_MIPS_INSTRUCTION_DECODER_NULL              "N/A"
+
 // Uncomment this if the inputted number is decimal.
 // #define EXT_MIPS_INSTRUCTION_DECODER_NUMBER_IS_BINARY
 
@@ -278,7 +280,9 @@ namespace ext {
             "$ra",
         };
 
-        return registerNameTable[registerNumber];
+        return registerNumber < 32
+            ? (registerNameTable[registerNumber])
+            : EXT_MIPS_INSTRUCTION_DECODER_NULL;
     }
 
     constexpr details::static_vector<details::pair<std::string_view, std::uint32_t>, 6> getInstructionFieldAndBinaryLengthTableFromInstructionFormat(InstructionFormat format) {
@@ -312,7 +316,7 @@ namespace ext {
         }
     }
 
-    auto getInstructionFieldAndRegisterNameTable(Binary binary, InstructionFormat format) {
+    constexpr auto getInstructionFieldAndRegisterNameTable(Binary binary, InstructionFormat format) {
         details::static_vector<details::pair<std::string_view, std::string_view>, 6> instructionFieldAndRegisterNameTable{};
         auto const instructionFieldAndBinaryLengthTable = getInstructionFieldAndBinaryLengthTableFromInstructionFormat(format);
         
@@ -331,14 +335,14 @@ namespace ext {
         return instructionFieldAndRegisterNameTable;
     }
 
-    auto getInstructionFieldAndRegisterNameTable(std::uint64_t decimal, InstructionFormat format) {
+    constexpr auto getInstructionFieldAndRegisterNameTable(std::uint64_t decimal, InstructionFormat format) {
         return getInstructionFieldAndRegisterNameTable(getBinaryFromDecimal(decimal), format);
     }
 }
 
 
 int main(void) {
-    auto instructionFieldAndRegisterNameTable = ext::getInstructionFieldAndRegisterNameTable(
+    constexpr auto instructionFieldAndRegisterNameTable = ext::getInstructionFieldAndRegisterNameTable(
         #ifdef EXT_MIPS_INSTRUCTION_DECODER_NUMBER_IS_BINARY
         ext::getBinaryFromBinaryLikeDecimal(EXT_MIPS_INSTRUCTION_DECODER_NUMBER)
         #else
